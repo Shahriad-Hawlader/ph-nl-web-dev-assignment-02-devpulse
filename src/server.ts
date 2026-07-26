@@ -1,10 +1,24 @@
-import express from "express";
+import express, {
+  type Application,
+  type Request,
+  type Response,
+} from "express";
 import config from "./config";
+import { Pool } from "pg";
 
-const app = express();
+const app: Application = express();
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+app.use(express.json());
+
+const pool = new Pool({
+  connectionString: config.connection_string,
+});
+
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    message: "DevPulse Express Server",
+    author: "Shahriad Hawlader",
+  });
 });
 
 app.listen(config.port, () => {

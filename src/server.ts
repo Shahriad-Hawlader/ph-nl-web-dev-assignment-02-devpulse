@@ -60,6 +60,34 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
+app.post("/api/auth/signup", async (req: Request, res: Response) => {
+  const { name, email, password, role } = req.body;
+
+  try {
+    const result = await pool.query(
+      `
+    INSERT INTO users(name, email, password, role) VALUES($1,$2,$3,COALESCE($4,'contributor'))
+    RETURNING *
+    `,
+      [name, email, password, role],
+    );
+
+    delete result.rows[0].password;
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: result.rows[0],
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      errors: error,
+    });
+  }
+});
+
 app.listen(config.port, () => {
   console.log(`Example app listening on port ${config.port}`);
 });
